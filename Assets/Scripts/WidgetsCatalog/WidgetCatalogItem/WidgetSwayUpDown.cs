@@ -1,0 +1,69 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class WidgetSwayUpDown : MonoBehaviour
+{
+    private Controller controller;
+    private UI ui;
+
+    private Color baseColor;
+    private Color selectedColor;
+
+    void Start()
+    {
+        controller = GameObject.Find("Controller").GetComponent<Controller>();
+        ui = controller.ui;
+
+        baseColor = this.gameObject.GetComponent<Image>().color;
+        selectedColor = new Color(.4f, .58f, .94f, 1);
+    }
+
+
+    public void UpdateBackgroundColor()
+    {
+        Item item = controller.selectedItem.GetComponent<Item>();
+        foreach (string componentName in item.addedWidgetComponents)
+        {
+            if (componentName.Equals("SwayUpDown"))
+                this.gameObject.GetComponent<Image>().color = selectedColor;
+            else
+                this.gameObject.GetComponent<Image>().color = baseColor;
+        }
+    }
+
+    // Used to add a new component to currently selected item
+    public void AddToSelectedItem()
+    {
+        if (controller.selectedItem != null)
+        {
+            Item item = controller.selectedItem.GetComponent<Item>();
+            bool alreadyHasWidget = false;
+
+            foreach (string componentName in item.addedWidgetComponents)
+            {
+                // Set boolean state of wether widget already added or not
+                if (componentName.Equals("SwayUpDown"))
+                {
+                    alreadyHasWidget = true;
+                    break;
+                }
+            }
+
+            // Add/Remove widget based on boolean value previously determined
+            if (!alreadyHasWidget)
+            {
+                controller.selectedItem.AddComponent<RotateTowardsPlayer>();
+                controller.selectedItem.GetComponent<Item>().addedWidgetComponents.Add("SwayUpDown");
+                this.gameObject.GetComponent<Image>().color = selectedColor;
+            }
+            else
+            {
+                Destroy(controller.selectedItem.GetComponent<RotateTowardsPlayer>());
+                controller.selectedItem.GetComponent<Item>().addedWidgetComponents.Remove("SwayUpDown");
+                this.gameObject.GetComponent<Image>().color = baseColor;
+            }
+        }
+    }
+}
